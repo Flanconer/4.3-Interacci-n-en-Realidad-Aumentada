@@ -141,7 +141,7 @@ function onSelect() {
 
 // Cargar animaciones adicionales
 function loadAnimation(loader, file, key) {
-  loader.load(`../models/fbx/${file}`, (animObj) => {
+  loader.load(`./models/fbx/${file}`, (animObj) => {
     if (animObj.animations.length > 0) {
       const action = mixer.clipAction(animObj.animations[0]);
       actions[key] = action;
@@ -238,4 +238,5 @@ function render(timestamp, frame) {
 
   renderer.render(scene, camera);
 }
+
 
