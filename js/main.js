@@ -86,7 +86,7 @@ function init() {
   // Loader FBX
   const loader = new FBXLoader();
 
-  loader.load('../models/fbx/Mutant Right Turn 45.fbx', (obj) => {
+  loader.load('./models/fbx/Mutant Right Turn 45.fbx', (obj) => {
     obj.traverse((child) => {
       if (child.isMesh) {
         child.castShadow = true;
@@ -238,3 +238,4 @@ function render(timestamp, frame) {
 
   renderer.render(scene, camera);
 }
+
