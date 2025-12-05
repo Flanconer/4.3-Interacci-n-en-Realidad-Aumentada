@@ -88,7 +88,7 @@ function init() {
   // Loader FBX
   const loader = new FBXLoader();
 
-  loader.load('../models/fbx/Mutant Right Turn 45.fbx', (obj) => {
+  loader.load('./models/fbx/Mutant Right Turn 45.fbx', (obj) => {
     obj.traverse((child) => {
       if (child.isMesh) {
         child.castShadow = true;
@@ -143,7 +143,7 @@ function onSelect() {
 
 // Cargar animaciones adicionales
 function loadAnimation(loader, file, key) {
-  loader.load(`../models/fbx/${file}`, (animObj) => {
+  loader.load(`./models/fbx/${file}`, (animObj) => {
     if (animObj.animations.length > 0) {
       const action = mixer.clipAction(animObj.animations[0]);
       actions[key] = action;
@@ -240,6 +240,7 @@ function render(timestamp, frame) {
 
   renderer.render(scene, camera);
 }
+
 
 
 
