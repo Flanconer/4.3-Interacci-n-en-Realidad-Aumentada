@@ -1,8 +1,9 @@
-import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
-import { OrbitControls } from 'https://unpkg.com/three@0.160.0/examples/jsm/controls/OrbitControls.js';
-import { FBXLoader } from 'https://unpkg.com/three@0.160.0/examples/jsm/loaders/FBXLoader.js';
-import { GUI } from 'https://unpkg.com/three@0.160.0/examples/jsm/libs/lil-gui.module.min.js';
+import * as THREE from './build/three.module.js';
+import { OrbitControls } from './jsm/controls/OrbitControls.js';
+import { FBXLoader } from './jsm/loaders/FBXLoader.js';
+import { GUI } from './jsm/libs/lil-gui.module.min.js';
 import { ARButton } from 'https://unpkg.com/three@0.160.0/examples/jsm/webxr/ARButton.js';
+
 
 let scene, camera, renderer, mixer, model;
 let ground;
@@ -230,3 +231,4 @@ function render(timestamp, frame) {
 
   renderer.render(scene, camera);
 }
+
