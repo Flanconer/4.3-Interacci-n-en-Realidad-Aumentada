@@ -1,9 +1,8 @@
-import * as THREE from './build/three.module.js';
-import { OrbitControls } from './jsm/controls/OrbitControls.js';
-import { FBXLoader } from './jsm/loaders/FBXLoader.js';
-import { GUI } from './jsm/libs/lil-gui.module.min.js';
+import * as THREE from '../build/three.module.js';
+import { OrbitControls } from '../jsm/controls/OrbitControls.js';
+import { FBXLoader } from '../jsm/loaders/FBXLoader.js';
+import { GUI } from '../jsm/libs/lil-gui.module.min.js';
 import { ARButton } from 'https://unpkg.com/three@0.160.0/examples/jsm/webxr/ARButton.js';
-
 
 let scene, camera, renderer, mixer, model;
 let ground;
@@ -13,6 +12,7 @@ const actions = {};
 let activeAction;
 const params = { animation: "mutant" };
 
+// AR / WebXR
 let controller, reticle;
 let hitTestSource = null;
 let hitTestSourceRequested = false;
@@ -32,6 +32,7 @@ function init() {
   );
   camera.position.set(200, 200, 300);
 
+  // Luces
   const hemiLight = new THREE.HemisphereLight(0xffffff, 0x444444, 2);
   hemiLight.position.set(0, 200, 0);
   scene.add(hemiLight);
@@ -41,6 +42,7 @@ function init() {
   dirLight.castShadow = true;
   scene.add(dirLight);
 
+  // Piso (solo para modo normal, se ocultará en AR)
   ground = new THREE.Mesh(
     new THREE.PlaneGeometry(2000, 2000),
     new THREE.MeshPhongMaterial({ color: 0x444444, depthWrite: true })
@@ -49,6 +51,7 @@ function init() {
   ground.receiveShadow = true;
   scene.add(ground);
 
+  // Renderer
   renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
   renderer.setPixelRatio(window.devicePixelRatio);
   renderer.setSize(window.innerWidth, window.innerHeight);
@@ -56,21 +59,18 @@ function init() {
   renderer.xr.enabled = true;
   document.body.appendChild(renderer.domElement);
 
-  // Solo crear botón AR si el entorno es seguro (https)
-  if (navigator.xr && window.isSecureContext) {
-    document.body.appendChild(
-      ARButton.createButton(renderer, {
-        requiredFeatures: ['hit-test']
-      })
-    );
-  } else {
-    console.warn('AR no disponible (se necesita HTTPS y navegador compatible).');
-  }
+  // Botón AR
+  document.body.appendChild(
+    ARButton.createButton(renderer, {
+      requiredFeatures: ['hit-test']
+    })
+  );
 
   const controls = new OrbitControls(camera, renderer.domElement);
   controls.target.set(0, 100, 0);
   controls.update();
 
+  // Retícula AR para colocar el modelo
   reticle = new THREE.Mesh(
     new THREE.RingGeometry(0.15, 0.2, 32).rotateX(-Math.PI / 2),
     new THREE.MeshBasicMaterial({ color: 0x00ff00 })
@@ -83,9 +83,10 @@ function init() {
   controller.addEventListener('select', onSelect);
   scene.add(controller);
 
+  // Loader FBX
   const loader = new FBXLoader();
 
-  loader.load('./models/fbx/Mutant Right Turn 45.fbx', (obj) => {
+  loader.load('../models/fbx/Mutant Right Turn 45.fbx', (obj) => {
     obj.traverse((child) => {
       if (child.isMesh) {
         child.castShadow = true;
@@ -117,6 +118,7 @@ function init() {
       .onChange((value) => fadeToAction(value));
   });
 
+  // Teclas para cambiar movimientos
   document.addEventListener("keydown", (event) => {
     switch (event.key) {
       case "1": fadeToAction("mutant"); params.animation = "mutant"; break;
@@ -130,14 +132,16 @@ function init() {
   window.addEventListener('resize', onWindowResize);
 }
 
+// Colocar el modelo donde está la retícula al tocar en AR
 function onSelect() {
   if (reticle.visible && model) {
     model.position.setFromMatrixPosition(reticle.matrix);
   }
 }
 
+// Cargar animaciones adicionales
 function loadAnimation(loader, file, key) {
-  loader.load(`./models/fbx/${file}`, (animObj) => {
+  loader.load(`../models/fbx/${file}`, (animObj) => {
     if (animObj.animations.length > 0) {
       const action = mixer.clipAction(animObj.animations[0]);
       actions[key] = action;
@@ -150,7 +154,7 @@ function normalizeModel(obj) {
   const center = box.getCenter(new THREE.Vector3());
   const size = box.getSize(new THREE.Vector3());
 
-  obj.position.sub(center);
+  obj.position.sub(center); // centrar
   const maxAxis = Math.max(size.x, size.y, size.z);
   obj.scale.multiplyScalar(200 / maxAxis);
 
@@ -168,6 +172,7 @@ function normalizeModel(obj) {
   camera.lookAt(new THREE.Vector3(0, newSize.y / 2, 0));
 }
 
+// Transición entre animaciones
 function fadeToAction(name) {
   const newAction = actions[name];
   if (newAction && newAction !== activeAction) {
@@ -183,6 +188,7 @@ function onWindowResize() {
   renderer.setSize(window.innerWidth, window.innerHeight);
 }
 
+// Loop de render + lógica AR
 function animate() {
   renderer.setAnimationLoop(render);
 }
@@ -194,6 +200,7 @@ function render(timestamp, frame) {
   const session = renderer.xr.getSession();
 
   if (frame && session) {
+    // Ocultar el piso en modo AR
     ground.visible = !renderer.xr.isPresenting;
 
     const referenceSpace = renderer.xr.getReferenceSpace();
@@ -231,6 +238,3 @@ function render(timestamp, frame) {
 
   renderer.render(scene, camera);
 }
-
-
-
